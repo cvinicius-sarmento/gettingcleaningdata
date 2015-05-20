@@ -14,7 +14,6 @@ folderTrain <- paste('./dataProject', 'UCI HAR Dataset', 'train', sep = '/')
 activityLabels <- read.table(file = paste(folder,'activity_labels.txt',sep='/'), header = F, sep = ' ', col.names = c('index','feature'), colClasses = c('integer', 'character')) 
 
 ## merging test and training data
-
 ##subject files
 subject_test <- read.table(file = paste(folderTest, 'subject_test.txt',sep='/'), header = F, colClasses = c('integer')) 
 subject_train <-read.table(file = paste(folderTrain, 'subject_train.txt',sep='/'), header = F, colClasses = c('integer')) 
@@ -51,24 +50,11 @@ rm(feature_names)
 dataset<- cbind(subject,activity)
 dataset <- cbind(dataset, feature[,grepl('(mean|std)\\(',colnames(feature))])
 
-
 rm(activity, feature,subject)
-write.table(dataset, file = 'unifiedDS.txt','','')
+write.table(dataset, file = 'unifiedDS.txt', row.names = F)
 
-#tidy dataSet
-tidyDataSet <- dataset[FALSE,]
-tidyDataSetAux <- dataset[1,]
-numSubjects<-length(unique(dataset$subject))
-numActivity<-length(levels(dataset$activity))
-for(i in 1:numSubjects){
-  for(j in 1:numActivity){
-    datasetJ<-subset(dataset, subject==i & activity==levels(activity)[j])
-    if(nrow(datasetJ) > 0){
-      tidyDataSetAux[1,1]<-i
-      tidyDataSetAux[1,2]<-levels(dataset$activity)[j]
-      tidyDataSetAux[1,3:length(colnames(datasetJ))]<-sapply(datasetJ[,3:length(colnames(datasetJ))],mean)
-      tidyDataSet <- rbind(tidyDataSet,tidyDataSetAux)
-    }
-  }
-}
-
+#new independent tidy data set with the average of each variable 
+#for each activity and each subject.
+library(dplyr)
+tidyDS <- ddply(dataset, c('subject','activity'), .fun = function(ds) colMeans(ds[3:length(colnames(ds))]))
+write.table(tidyDS, file = 'tidyDS.txt', row.names = F)
