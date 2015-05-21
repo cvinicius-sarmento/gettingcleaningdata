@@ -55,6 +55,6 @@ write.table(dataset, file = 'unifiedDS.txt', row.names = F)
 
 #new independent tidy data set with the average of each variable 
 #for each activity and each subject.
-library(dplyr)
+library(plyr)
 tidyDS <- ddply(dataset, c('subject','activity'), .fun = function(ds) colMeans(ds[3:length(colnames(ds))]))
 write.table(tidyDS, file = 'tidyDS.txt', row.names = F)
