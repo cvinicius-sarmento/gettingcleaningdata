@@ -1,14 +1,22 @@
-## download the data for the project
-download.file(url='https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip', method='wget', destfile = 'dataProject.zip')
-if (!file.exists("./dataProject")){dir.create("dataProject")}
-unzip("./dataProject.zip", files = NULL, list = FALSE, overwrite = TRUE,
-      junkpaths = FALSE, exdir = "./dataProject", unzip = "internal",
-      setTimes = FALSE)
+library(plyr)
 
-## setting the paths the folders
-folder <- paste('./dataProject', 'UCI HAR Dataset', sep = '/')
-folderTest <- paste('./dataProject', 'UCI HAR Dataset', 'test', sep = '/')
-folderTrain <- paste('./dataProject', 'UCI HAR Dataset', 'train', sep = '/')
+folder <-'.'
+folderTest <- '.'
+folderTrain <-'.'
+
+## In case you don't have the required files in your workplace, you can uncomment the following lines
+## to make the download and unzip the files
+
+## this block downloads the data for the project and unzips it
+#download.file(url='https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip', method='wget', destfile = 'dataProject.zip')
+#if (!file.exists("./dataProject")){dir.create("dataProject")}
+#unzip("./dataProject.zip", files = NULL, list = FALSE, overwrite = TRUE, junkpaths = FALSE, exdir = "./dataProject", unzip = "internal", setTimes = FALSE)
+
+## this block sets the paths in the working directory to access the files
+#folder <- paste('./dataProject', 'UCI HAR Dataset', sep = '/')
+#folderTest <- paste('./dataProject', 'UCI HAR Dataset', 'test', sep = '/')
+#folderTrain <- paste('./dataProject', 'UCI HAR Dataset', 'train', sep = '/')
+
 
 ##Activity labels
 activityLabels <- read.table(file = paste(folder,'activity_labels.txt',sep='/'), header = F, sep = ' ', col.names = c('index','feature'), colClasses = c('integer', 'character')) 
@@ -41,7 +49,7 @@ feature_train <- read.table(file = paste(folderTrain, 'X_train.txt',sep='/'), he
 feature<-rbind(feature,feature_train)
 rm(feature_train)
 
-  ##labeling columns
+##labeling columns
 feature_names <-  read.table(file = paste(folder, 'features.txt',sep='/'), header = F, colClasses = c('integer', 'character'), col.names = c('id','name')) 
 colnames(feature)<- feature_names$name
 rm(feature_names)
@@ -55,6 +63,5 @@ write.table(dataset, file = 'unifiedDS.txt', row.names = F)
 
 #new independent tidy data set with the average of each variable 
 #for each activity and each subject.
-library(plyr)
 tidyDS <- ddply(dataset, c('subject','activity'), .fun = function(ds) colMeans(ds[3:length(colnames(ds))]))
 write.table(tidyDS, file = 'tidyDS.txt', row.names = F)
